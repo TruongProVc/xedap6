@@ -6,122 +6,99 @@ const SECRET_KEY = 'saddasdasadsasdadsas';
 
 // Lấy dữ liệu giỏ hàng và thông tin khách hàng
 exports.getCustomerData = async (req, res) => {
-        const authHeader = req.headers.authorization;
-        const token = authHeader && authHeader.split(" ")[1];
-        // console.log(token)
-        if (!token) {
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(" ")[1];
+
+    if (!token) {
         return res.status(403).json({ message: "Token không được cung cấp" });
-        }
+    }
 
-        try {
-            const user = jwt.verify(token, SECRET_KEY);
-            req.user = user; // Gán thông tin người dùng vào req
-            const customer = await Customer.findOne({
-                where: { CustomerId: user.customerid },
-            });
-            res.json(customer);
-        } catch (err) {
+    try {
+        const user = jwt.verify(token, SECRET_KEY);
+        req.user = user; // Gán thông tin người dùng vào req
+        const customer = await Customer.findOne({
+            where: { CustomerId: user.customerid },
+        });
+        if (!customer) {
+            return res.status(404).json({ message: "Không tìm thấy khách hàng." });
+        }
+        res.json(customer);
+    } catch (err) {
         return res.status(401).json({ message: "Token không hợp lệ" });
-        }
+    }
+};  // Đóng ngoặc ở đây
 
-};
-exports.getCheckoutData = async (req, res) => {
-  const token = req.session ? req.session.token : null;
-  console.log(token)
+// Xử lý thanh toán và tạo đơn hàng
+exports.checkout = async (req, res) => {
+  const { cart, paymentMethod, address, mobile, email, firstname, lastname } = req.body;
 
+  const authHeader = req.headers.authorization;
+  const token = authHeader && authHeader.split(" ")[1];
+  
   if (!token) {
-    return res.status(401).json({ message: 'Unauthorized' });
+    return res.status(403).json({ message: "Token không được cung cấp" });
   }
 
   try {
-    // Giải mã token để lấy customerId
-    const decoded = jwt.verify(token, SECRET_KEY);
-    const customerId = decoded.customerid;
+    const user = jwt.verify(token, SECRET_KEY);
+    req.user = user;
 
-    // Lấy thông tin khách hàng từ database
-    const customer = await Customer.findOne({ where: { CustomerId: customerId } });
+    // Lấy thông tin khách hàng từ DB
+    const customer = await Customer.findOne({
+      where: { CustomerId: user.customerid },
+    });
 
     if (!customer) {
-      return res.status(404).json({ message: 'Customer not found' });
+      return res.status(404).json({ message: "Không tìm thấy khách hàng." });
     }
 
-    // Kiểm tra giỏ hàng
-    if (!req.session.cart || req.session.cart.length === 0) {
-      return res.status(404).json({ message: 'Cart is empty' });
-    }
-
-    return res.status(200).json({
-      customer: {
-        firstname: customer.Firstname,
-        lastname: customer.Lastname,
-        email: customer.Email,
-        address: customer.Address,
-        mobile: customer.Mobile,
-      },
-      cart: req.session.cart,
-    });
-  } catch (error) {
-    console.error('Error fetching checkout data:', error);
-    return res.status(500).json({ message: 'Server error' });
-  }
-};
-
-
-// Tạo đơn hàng và thanh toán
-exports.createOrder = async (req, res) => {
-  const { paymentMethod, discount } = req.body;
-  const token = req.session ? req.session.token : null;
-
-  if (!token) {
-    return res.status(401).json({ message: 'Unauthorized' });
-  }
-
-  try {
-    // Giải mã token để lấy customerId
-    const decoded = jwt.verify(token, SECRET_KEY);
-    const customerId = decoded.customerid;
-    console.log(customerId)
-
-    if (!req.session.cart || req.session.cart.length === 0) {
-      return res.status(404).json({ message: 'Cart is empty' });
-    }
-
-    let subPrice = 0;
-    req.session.cart.forEach(item => {
-      subPrice += item.Quantity * item.Price;
-    });
-
-    const totalPrice = subPrice - discount;
-
-    // Tạo đơn hàng
-    const order = await Order.create({
-      CustomerId: customerId,
+    // Tính tổng tiền giỏ hàng (SubPrice)
+    const subPrice = cart.reduce((acc, item) => acc + (item.Price * item.Quantity), 0);
+    const discount = 2;  
+    const newOrder = await Order.create({
+      CustomerId: customer.CustomerId,
       PaymentMethod: paymentMethod,
-      SubPrice: subPrice,
-      TotalPrice: totalPrice,
-      Discount: discount,
+      Address: address || customer.Address,
+      Mobile: mobile || customer.Mobile,
+      Email: email || customer.Email,
+      Firstname: firstname || customer.Firstname,
+      Lastname: lastname || customer.Lastname,
+      TotalPrice: subPrice,  // Tổng giá trị của đơn hàng
+      SubPrice: subPrice,    // SubPrice là tổng giá trị giỏ hàng
+      Discount: discount,    // Discount mặc định = 0
+      CreateAt: new Date(),
     });
+
+    // Đảm bảo rằng OrderId đã được tạo
+    if (!newOrder.OrderId) {
+      return res.status(400).json({ message: "Không thể tạo đơn hàng." });
+    }
+
+    // Tạo các chi tiết đơn hàng
+    const orderDetails = cart.map(item => ({
+      OrderId: newOrder.OrderId,  // Sử dụng OrderId vừa tạo
+      ProductId: item.ProductId,
+      Quantity: item.Quantity,
+    }));
 
     // Lưu chi tiết đơn hàng
-    for (const item of req.session.cart) {
+    for(var i = 0;i<orderDetails.length;i++){
       await OrderDetail.create({
-        OrderId: order.OrderId,
-        ProductId: item.ProductId,
-        Quantity: item.Quantity,
-        Price: item.Price,
+        OrderId: orderDetails[i].OrderId,
+        ProductId: orderDetails[i].ProductId,
+        Quantity: orderDetails[i].Quantity
       });
     }
 
-    // Xóa giỏ hàng
-    req.session.cart = [];
-
-    return res.status(201).json({
-      message: 'Order created successfully',
-      orderId: order.OrderId,
-      totalPrice: totalPrice,
+    res.status(201).json({
+      message: "Đơn hàng đã được tạo thành công!",
+      orderId: newOrder.OrderId,
+      totalAmount: newOrder.TotalPrice,
+      orderDate: newOrder.CreateAt,
     });
-  } catch (error) {
-    console.error('Error creating order:', error);
-    return res.status(500).json({ message: 'Server error' });
+
+  } catch (err) {
+    console.error(err);
+    return res.status(401).json({ message: "Token không hợp lệ" });
   }
 };

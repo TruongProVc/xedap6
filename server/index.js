@@ -15,7 +15,7 @@ const { getAllProducts, addProduct, deleteProduct, getProductDetails, getProduct
 const { getAllAccounts, getProfileAdmin,updateProfileAdmin,changePassword } = require("./src/app/controller/AccountController");
 const { login,register } = require("./src/app/controller/LoginController");
 const { addToCart, getCart, updateQuantity, removeFromCart } = require('./src/app/controller/CartController');
-const { getCheckoutData,getCustomerData } = require('./src/app/controller/CheckoutController');
+const { getCustomerData, checkout } = require('./src/app/controller/CheckoutController');
 
 app.use(cors({ origin: "http://localhost:3001", credentials: true })); 
 app.use(express.json()); 
@@ -29,7 +29,6 @@ app.get('/productdetails/:id', getProductDetails);
 app.get('/search', searchProducts);
 
 // 
-app.get('/api/customer', getCustomerData);
 
 
 // 
@@ -63,7 +62,9 @@ app.get('/cart', getCart);
 app.post('/cart/update', updateQuantity);
 app.post('/cart/remove', removeFromCart);
 //
-app.post('/checkout',getCheckoutData);
+app.post('/checkout',checkout);
+app.get('/api/customer', getCustomerData);
+
 
 app.get("/", (req, res) => {
   res.json({ message: "Server đang chạy!" });

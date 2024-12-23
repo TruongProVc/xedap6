@@ -19505,4 +19505,44 @@ Pages - Contact
     gap: 20px; /* Tăng khoảng cách giữa các sản phẩm */
   }
   
+  .payment-method-dropdown {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
   
+  .payment-label {
+    font-size: 14px; /* Nhỏ hơn một chút */
+    font-weight: bold;
+    color: #333;
+  }
+  
+  .payment-select {
+    padding: 8px 10px; /* Giảm khoảng cách bên trong */
+    font-size: 12px; /* Font nhỏ hơn */
+    width: 200px; /* Đặt chiều rộng cố định nhỏ gọn */
+    border: 2px solid #ddd;
+    border-radius: 6px; /* Góc bo mềm mại */
+    background-color: #f9f9f9;
+    color: #333;
+    outline: none;
+    transition: border-color 0.3s, background-color 0.3s;
+  }
+  
+  .payment-select:hover {
+    border-color: #ffc107;
+    background-color: #fff8e1;
+  }
+  
+  .payment-select:focus {
+    border-color: #ff9800;
+    box-shadow: 0 0 5px rgba(255, 152, 0, 0.5);
+  }
+  
+  .payment-select option {
+    padding: 8px; /* Giảm khoảng cách bên trong */
+    font-size: 12px;
+    background-color: #fff;
+    color: #333;
+  }

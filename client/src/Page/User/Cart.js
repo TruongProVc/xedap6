@@ -144,23 +144,28 @@ const Cart = () => {
                       <p className="cart_amount">{totalPrice.toLocaleString()} VNĐ</p>
                     </div>
                     <div className="checkout_btn">
-                    <a
-                      href="#"
-                      className="btn btn-md btn-pink"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        const token = localStorage.getItem("token");
-                        if (token) {
-                          window.location.href = "/checkout"; // Đường dẫn đến trang checkout
-                        } else {
-                          alert("Bạn cần đăng nhập để tiếp tục thanh toán.");
-                          window.location.href = "/login"; // Đường dẫn đến trang đăng nhập
-                        }
-                      }}
-                    >
-                      Tiếp tục thanh toán
-                    </a>
-                  </div>
+                      <a
+                        href="#"
+                        className={`btn btn-md ${cart.length > 0 ? "btn-pink" : "btn-gray"}`}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          if (cart.length === 0) {
+                            alert("Giỏ hàng của bạn trống. Vui lòng thêm sản phẩm để tiếp tục thanh toán.");
+                            return;
+                          }
+                          const token = localStorage.getItem("token");
+                          if (token) {
+                            window.location.href = "/checkout"; // Đường dẫn đến trang checkout
+                          } else {
+                            alert("Bạn cần đăng nhập để tiếp tục thanh toán.");
+                            window.location.href = "/login"; // Đường dẫn đến trang đăng nhập
+                          }
+                        }}
+                      >
+                        Tiếp tục thanh toán
+                      </a>
+                    </div>
+
 
                   </div>
                 </div>
