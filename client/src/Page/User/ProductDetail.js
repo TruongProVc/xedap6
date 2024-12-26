@@ -7,7 +7,19 @@ const ProductDetails = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [specifications, setSpecifications] = useState([]);
+  const [comments, setComments] = useState([]); // Danh sách bình luận
+  const [newComment, setNewComment] = useState(''); // Lưu nội dung bình luận mới
 
+  const [userInfo, setUserInfo] = useState({
+    Address: '',
+    CustomerId: 0,
+    Email: '',
+    Firstname: '',
+    Lastname: '',
+    Mobile: ''
+  });
+
+  
   // Hàm gọi API chi tiết sản phẩm
   const fetchProductDetails = async () => {
     try {
@@ -35,7 +47,7 @@ const ProductDetails = () => {
   };
 
   // Hàm thêm sản phẩm vào giỏ hàng
-  const handleAddToCart = (product) => {
+  const handleAddToCart = (product) => {  
     try {
       let cart = JSON.parse(localStorage.getItem('cart')) || []; // Lấy giỏ hàng từ localStorage, nếu không có thì khởi tạo giỏ hàng mới
   
@@ -64,12 +76,111 @@ const ProductDetails = () => {
       alert('Thêm sản phẩm vào giỏ hàng thất bại');
     }
   };
-  
+//Hiển thị bình luận
+  const fetchComments = async () => {
+  try {
+    const response = await fetch(`http://localhost:3000/comments/${id}`);
+    if (!response.ok) throw new Error('Failed to fetch comments');
+    const data = await response.json();
+    console.log(data)
 
+    // Thêm thông tin tên khách hàng vào từng bình luận
+    const commentsWithNames = data.map((comment) => {
+      return {
+        ...comment,
+        CustomerName: comment.CustomerId === userInfo.CustomerId ? userInfo.Firstname + ' ' + userInfo.Lastname : 'Khách hàng ẩn danh', // So khớp ID để lấy tên
+      };
+    });
+
+    setComments(commentsWithNames);
+  } catch (error) {
+    console.error('Error fetching comments:', error);
+  }
+};
+const handleAddComment = async () => {
+  if (!newComment.trim()) {
+    alert('Vui lòng nhập nội dung bình luận.');
+    return;
+  }
+
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('Bạn cần đăng nhập để thêm bình luận.');
+      window.location.href = '/login';
+      return;
+    }
+
+    const response = await fetch('http://localhost:3000/comments', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        ProductId: id,
+        Content: newComment,
+      }),
+    });
+
+    if (!response.ok) throw new Error('Thêm bình luận thất bại');
+
+    const createdComment = await response.json();
+
+    // Cập nhật danh sách bình luận mới với thông tin username đã được trả về từ backend
+    setComments((prevComments) => {
+      // Tạo một bản sao của danh sách bình luận cũ và thêm bình luận mới
+      const updatedComments = [...prevComments, createdComment];
+
+      return updatedComments;
+    });
+
+    setNewComment(''); // Reset nội dung bình luận sau khi thêm
+    alert('Bình luận của bạn đã được thêm!');
+  } catch (error) {
+    console.error('Error adding comment:', error);
+    alert('Đã xảy ra lỗi khi thêm bình luận');
+  }
+};
+
+
+
+//call để lấy giải mã token
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('Bạn cần đăng nhập để tiếp tục.');
+      window.location.href = '/login';
+      return;
+    }
+
+    fetch('http://localhost:3000/api/customer', {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      }
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Không thể lấy thông tin khách hàng.');
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setUserInfo(data);
+      })
+      .catch((error) => {
+        console.error('Lỗi khi lấy thông tin khách hàng:', error);
+        alert('Không thể lấy thông tin khách hàng. Vui lòng thử lại.');
+      });
+  }, []);
+  
   // useEffect để gọi API
   useEffect(() => {
     fetchProductDetails();
     fetchSpecifications();
+    fetchComments();
   }, [id]);
 
   if (isLoading) return <p>Loading product details...</p>;
@@ -99,7 +210,7 @@ const ProductDetails = () => {
       </div>
       {/* End Breadcrumb Section */}
 
-      {/* Start Product Details Section */}
+      {/* Chi tiết sản phẩm  */}
       <div className="product-details-section ">
         <div className="container">
           <div className="row">
@@ -155,7 +266,7 @@ const ProductDetails = () => {
                     <div className="product-stock">
                       <span className="product-stock-in">
                         <i className="ion-checkmark-circled" />
-                      </span> 200 IN STOCK
+                      </span> CÒN HÀNG
                     </div>
                   </div>
                   {/* Product Variable Single Item */}
@@ -173,9 +284,9 @@ const ProductDetails = () => {
           </div>
         </div>
       </div>
-      {/* End Product Details Section */}
+      {/* Chi tiết sản phẩm  */}
 
-      {/* Start Product Content Tab Section */}
+      {/* Thông số kĩ thuật */}
       <div className="product-details-content-tab-section section-top-gap-100">
         <div className="container">
           <div className="row">
@@ -225,167 +336,110 @@ const ProductDetails = () => {
           </div>
         </div>
       </div>
-      {/* End Product Content Tab Section */}ư {/* Start Product Content Tab Section */}
-  <div className="product-details-content-tab-section section-top-gap-100">
-    <div className="container">
-      <div className="row">
-        <div className="col-12">
-          <div
-            className="product-details-content-tab-wrapper"
-            data-aos="fade-up"
-            data-aos-delay={0}
-          >
-            {/* Start Product Details Tab Button */}
-            <ul className="nav tablist product-details-content-tab-btn d-flex justify-content-center">
-              <li>
-                <a
-                  className="nav-link active"
-                  data-bs-toggle="tab"
-                  href="#review"
-                >
-                  Reviews (1)
-                </a>
-              </li>
-            </ul>{" "}
-            {/* End Product Details Tab Button */}
-            {/* Start Product Details Tab Content */}
-            <div className="product-details-content-tab">
-              <div className="tab-content">
-                {/* Start Product Details Tab Content Singel */}
-                <div className="tab-pane active show" id="review">
-                  <div className="single-tab-content-item">
-                    {/* Start - Review Comment */}
-                    <ul className="comment">
-                      {/* Start - Review Comment list*/}
-                      <li className="comment-list">
-                        <div className="comment-wrapper">
-                          <div className="comment-content">
-                            <div className="comment-content-top">
-                              <div className="comment-content-left">
-                                <h6 className="comment-name">Kaedyn Fraser</h6>
-                                <ul className="review-star">
-                                  <li className="fill">
-                                    <i className="ion-android-star" />
-                                  </li>
-                                  <li className="fill">
-                                    <i className="ion-android-star" />
-                                  </li>
-                                  <li className="fill">
-                                    <i className="ion-android-star" />
-                                  </li>
-                                  <li className="fill">
-                                    <i className="ion-android-star" />
-                                  </li>
-                                  <li className="empty">
-                                    <i className="ion-android-star" />
-                                  </li>
-                                </ul>
+      {/* Thông số kĩ thuật end*/}
+
+      {/* Bình luận */}
+<div className="product-details-content-tab-section section-top-gap-100">
+  <div className="container">
+    <div className="row">
+      <div className="col-12">
+        <div
+          className="product-details-content-tab-wrapper"
+          data-aos="fade-up"
+          data-aos-delay={0}
+        >
+          {/* Start Product Details Tab Button */}
+          <ul className="nav tablist product-details-content-tab-btn d-flex justify-content-center">
+            <li>
+              <a className="nav-link active" data-bs-toggle="tab" href="#review">
+                Reviews ({comments.length})
+              </a>
+            </li>
+          </ul>
+          {/* End Product Details Tab Button */}
+          
+          {/* Start Product Details Tab Content */}
+          <div className="product-details-content-tab">
+            <div className="tab-content">
+              {/* Start Product Details Tab Content Singel */}
+              <div className="tab-pane active show" id="review">
+                <div className="single-tab-content-item">
+                  {/* Danh sách bình luận */}
+                  <ul className="comment">
+                    {comments.length > 0 ? (
+                      comments.map((comment) => (
+                        <li key={comment.CommentId} className="comment-list">
+                          <div className="comment-wrapper">
+                            <div className="comment-content">
+                              <div className="comment-content-top">
+                                <div className="comment-content-left">
+                                  <h6 className="comment-name">
+                                  {comment.Account?.Email || "Bạn vừa đăng một bình luận :"}
+                                  </h6>
+                                  <ul className="review-star">
+                                    <li className="fill">
+                                      <i className="ion-android-star" />
+                                    </li>
+                                  </ul>
+                                </div>
+                              </div>
+                              <div className="para-content">
+                                <p>{comment.Content}</p>
                               </div>
                             </div>
-                            <div className="para-content">
-                              <p>
-                                Lorem ipsum dolor sit amet, consectetur
-                                adipisicing elit. Tempora inventore dolorem a
-                                unde modi iste odio amet, fugit fuga aliquam,
-                                voluptatem maiores animi dolor nulla magnam ea!
-                                Dignissimos aspernatur cumque nam quod sint
-                                provident modi alias culpa, inventore deserunt
-                                accusantium amet earum soluta consequatur quasi
-                                eum eius laboriosam, maiores praesentium
-                                explicabo enim dolores quaerat! Voluptas ad
-                                ullam quia odio sint sunt. Ipsam officia, saepe
-                                repellat.
-                              </p>
-                            </div>
                           </div>
-                        </div>
-                      </li>{" "}
-                      {/* End - Review Comment list*/}
-                      {/* Start - Review Comment list*/}
-                      <li className="comment-list">
-                        <div className="comment-wrapper">
-                          <div className="comment-content">
-                            <div className="comment-content-top">
-                              <div className="comment-content-left">
-                                <h6 className="comment-name">Kaedyn Fraser</h6>
-                                <ul className="review-star">
-                                  <li className="fill">
-                                    <i className="ion-android-star" />
-                                  </li>
-                                  <li className="fill">
-                                    <i className="ion-android-star" />
-                                  </li>
-                                  <li className="fill">
-                                    <i className="ion-android-star" />
-                                  </li>
-                                  <li className="fill">
-                                    <i className="ion-android-star" />
-                                  </li>
-                                  <li className="empty">
-                                    <i className="ion-android-star" />
-                                  </li>
-                                </ul>
-                              </div>
-                            </div>
-                            <div className="para-content">
-                              <p>
-                                Lorem ipsum dolor sit amet, consectetur
-                                adipisicing elit. Tempora inventore dolorem a
-                                unde modi iste odio amet.
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </li>{" "}
-                      {/* End - Review Comment list*/}
-                    </ul>{" "}
-                    {/* End - Review Comment */}
-                    <div className="review-form">
-                      <div className="review-form-text-top">
-                        <h5>ADD A REVIEW</h5>
-                      </div>
-                      <form action="#" method="post">
-                        <div className="row">
-                          <div className="col-12">
-                            <div className="default-form-box">
-                              <label htmlFor="comment-review-text">
-                                Your review
-                                <span>*</span>
-                              </label>
-                              <textarea
-                                id="comment-review-text"
-                                placeholder="Write a review"
-                                required=""
-                                defaultValue={""}
-                              />
-                            </div>
-                          </div>
-                          <div className='checkout_btn'>
-                          <div className="col-12">
-                            <button
-                              className="btn btn-md btn-pink"
-                              type="submit"
-                            >
-                              Gửi
-                            </button>
-                          </div>
-                          </div>
-                         
-                        </div>
-                      </form>
+                        </li>
+                      ))
+                    ) : (
+                      <li>Không có bình luận nào.</li>
+                    )}
+                  </ul>
+
+                  {/* Form Gửi Bình Luận */}
+                  <div className="review-form">
+                    <div className="review-form-text-top">
+                      <h5>Thêm bình luận</h5>
                     </div>
+                    <form onSubmit={(e) => e.preventDefault()}>
+                      <div className="row">
+                        <div className="col-12">
+                          <div className="default-form-box">
+                            <label htmlFor="comment-review-text">
+                              Nội dung bình luận<span>*</span>
+                            </label>
+                            <textarea
+                              id="comment-review-text"
+                              placeholder="Viết bình luận"
+                              value={newComment}
+                              onChange={(e) => setNewComment(e.target.value)}
+                            />
+                          </div>
+                        </div>
+                        <div className="checkout_btn">
+                          <button
+                            className="btn btn-md btn-pink"
+                            type="button"
+                            onClick={handleAddComment}
+                          >
+                            Gửi
+                          </button>
+                        </div>
+                      </div>
+                    </form>
                   </div>
-                </div>{" "}
-                {/* End Product Details Tab Content Singel */}
+                </div>
               </div>
-            </div>{" "}
-            {/* End Product Details Tab Content */}
+              {/* End Product Details Tab Content Singel */}
+            </div>
           </div>
+          {/* End Product Details Tab Content */}
         </div>
       </div>
     </div>
-  </div>{" "}
-  {/* End Product Content Tab Section */}
+  </div>
+</div>
+{/* Bình luận */}
+
     </>
   );
 };

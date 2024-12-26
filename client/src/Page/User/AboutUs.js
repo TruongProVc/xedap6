@@ -27,21 +27,15 @@ const AboutUs =()=>{
         </div>
         <div className="col-md-6">
           <div className="content" data-aos="fade-up" data-aos-delay={200}>
-            <h3 className="title">ABOUT OUR HONO STORE</h3>
+            <h3 className="title">VỀ CỬA HÀNG XE ĐẠP THỂ THAO CỦA CHÚNG TÔI</h3>
             <h5 className="semi-title">
-              We believe that every project existing in digital world is a
-              result of an idea and every idea has a cause.
+              Bike.vn
             </h5>
             <p>
-              For this reason, our each design serves an idea. Our strength in
-              design is reflected by our name, our care for details. Our
-              specialist won't be afraid to go extra miles just to approach near
-              perfection. We don't require everything to be perfect, but we need
-              them to be perfectly cared for. That's a reason why we are willing
-              to give contributions at best. Not a single detail is missed out
-              under Billey's professional eyes.The amount of dedication and
-              effort equals to the level of passion and determination. Get
-              better, together as one.
+            Chúng tôi tin rằng mỗi chuyến đi bắt đầu từ đam mê và mỗi chiếc xe đạp đều kể một câu chuyện. Tại cửa hàng của chúng tôi, chúng tôi cam kết cung cấp những chiếc xe đạp thể thao chất lượng cao giúp bạn theo đuổi hành trình của mình, bất kể con đường dẫn bạn đi đâu.
+            Mỗi chiếc xe đạp mà chúng tôi cung cấp đều được lựa chọn, thiết kế và chế tạo để đáp ứng các tiêu chuẩn cao nhất về hiệu suất, độ bền và sự thoải mái. Đội ngũ của chúng tôi luôn nỗ lực hết mình để đảm bảo mỗi chiếc xe đạp đều phù hợp hoàn hảo với nhu cầu của bạn. Chúng tôi hiểu rằng sự hoàn hảo là một hành trình, không phải một đích đến, vì vậy chúng tôi tập trung vào những chi tiết quan trọng nhất.
+            Với đôi mắt sáng tạo và cam kết không ngừng về chất lượng, chúng tôi phấn đấu mang đến những sản phẩm không chỉ đáp ứng mà còn vượt xa mong đợi của bạn. Hãy cùng chúng tôi theo đuổi sự xuất sắc và tận hưởng mỗi chuyến đi với sự tự tin rằng bạn đã chọn lựa những chiếc xe đạp tốt nhất.
+            Cùng nhau, chúng ta sẽ chinh phục mọi chặng đường.
             </p>
           </div>
         </div>
@@ -66,10 +60,7 @@ const AboutUs =()=>{
               </div>
               <div className="content">
                 <h6 className="title">Creative Always</h6>
-                <p>
-                  Stay creative with Billey and the huge collection of premade
-                  elements, layouts &amp; effects.
-                </p>
+                
               </div>
             </div>
           </div>
@@ -86,10 +77,7 @@ const AboutUs =()=>{
               </div>
               <div className="content">
                 <h6 className="title">Express Customization</h6>
-                <p>
-                  Easy to install and configure the theme customization in a few
-                  clicks with Billey.
-                </p>
+               
               </div>
             </div>
           </div>
@@ -106,10 +94,7 @@ const AboutUs =()=>{
               </div>
               <div className="content">
                 <h6 className="title">Premium Integrations</h6>
-                <p>
-                  Integrated premium plugins in Billey is the secret weapon for
-                  your business to thrive.
-                </p>
+                
               </div>
             </div>
           </div>
@@ -126,10 +111,7 @@ const AboutUs =()=>{
               </div>
               <div className="content">
                 <h6 className="title">Real-time Editing</h6>
-                <p>
-                  Edit your work and preview the changes on the screen live with
-                  advanced page builder.
-                </p>
+                
               </div>
             </div>
           </div>

@@ -1,6 +1,6 @@
 exports.addToCart = (req, res) => {
     //Lấy các phần tử trong product 
-    const { ProductId, Quantity, ProductName } = req.body;  
+    const { ProductId, Quantity, ProductName,Discount } = req.body;  
     const UserId = req.session.user ? req.session.user.id : null;  // Lấy UserId từ session
 
     if (!UserId) {
@@ -19,7 +19,7 @@ exports.addToCart = (req, res) => {
         existingProduct.Quantity += Quantity;
     } else {
         // Nếu không, thêm mới sản phẩm vào giỏ hàng
-        req.session.cart.push({ ProductId, ProductName, Quantity });
+        req.session.cart.push({ ProductId, ProductName, Quantity,Discount });
     }
 
     res.status(200).json({ message: 'Sản phẩm đã được thêm vào giỏ hàng!' });

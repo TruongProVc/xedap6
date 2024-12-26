@@ -8,6 +8,7 @@ import AllProducts from "../Page/User/AllProducts";
 import AboutUs from "../Page/User/AboutUs";
 import Cart from "../Page/User/Cart";
 import Checkout from "../Page/User/CheckOut";
+import UserProfile from "../Page/User/UserProfile";
 
 const UserLayout = () => {
   return (
@@ -22,7 +23,7 @@ const UserLayout = () => {
           <Route path="/AboutUs" element={<AboutUs />} />
           <Route path="/cart" element={<Cart />} /> 
           <Route path="/checkout" element={<Checkout />} /> 
-
+          <Route path="/UserProfile" element={<UserProfile/>}></Route>
         </Routes>
       </div>
       <Footer />

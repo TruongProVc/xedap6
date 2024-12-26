@@ -14,7 +14,7 @@ const Checkout = () => {
   const [paymentMethod, setPaymentMethod] = useState('CashOnDelivery');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Lấy giỏ hàng từ localStorage
+  // Lấy giỏ hàng từ localStorage 
   useEffect(() => {
     const cartData = JSON.parse(localStorage.getItem('cart')) || [];
     setCart(cartData);  // Cập nhật state giỏ hàng với dữ liệu từ localStorage

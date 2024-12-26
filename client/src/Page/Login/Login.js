@@ -54,6 +54,7 @@ const Login =()=>{
                  type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
+                placeholder="Tên đăng nhập"
                 required
               />
             </div>
@@ -62,6 +63,7 @@ const Login =()=>{
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                placeholder="Mật khẩu"
                 required
               />
             </div>

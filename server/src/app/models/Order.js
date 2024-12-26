@@ -36,6 +36,10 @@ const Order = sequelize.define('Order', {
         allowNull: true,
         defaultValue: DataTypes.NOW,
     },
+    OrderStatus: {
+        type: DataTypes.TINYINT,
+        allowNull: true,
+    },
 }, {
     tableName: 'order',
     timestamps: false, 

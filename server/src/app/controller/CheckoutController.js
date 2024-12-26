@@ -4,7 +4,6 @@ const Order = require('../models/Order');
 const OrderDetail = require('../models/OrderDetail');
 const SECRET_KEY = 'saddasdasadsasdadsas';
 
-// Lấy dữ liệu giỏ hàng và thông tin khách hàng
 exports.getCustomerData = async (req, res) => {
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(" ")[1];
@@ -26,7 +25,7 @@ exports.getCustomerData = async (req, res) => {
     } catch (err) {
         return res.status(401).json({ message: "Token không hợp lệ" });
     }
-};  // Đóng ngoặc ở đây
+}; 
 
 // Xử lý thanh toán và tạo đơn hàng
 exports.checkout = async (req, res) => {
@@ -67,6 +66,7 @@ exports.checkout = async (req, res) => {
       SubPrice: subPrice,    // SubPrice là tổng giá trị giỏ hàng
       Discount: discount,    // Discount mặc định = 0
       CreateAt: new Date(),
+      OrderStatus : 0,
     });
 
     // Đảm bảo rằng OrderId đã được tạo
