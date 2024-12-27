@@ -9,6 +9,8 @@ const ProductDetails = () => {
   const [specifications, setSpecifications] = useState([]);
   const [comments, setComments] = useState([]); // Danh sách bình luận
   const [newComment, setNewComment] = useState(''); // Lưu nội dung bình luận mới
+  const [Images, setImages] = useState([]);
+  const [largeImage, setLargeImage] = useState(`http://localhost:3000/uploads/${productdetails?.Avatar}`);
 
   const [userInfo, setUserInfo] = useState({
     Address: '',
@@ -20,8 +22,8 @@ const ProductDetails = () => {
   });
 
   
-  // Hàm gọi API chi tiết sản phẩm
-  const fetchProductDetails = async () => {
+  // Hàm g  ọi API chi tiết sản phẩm
+const fetchProductDetails = async () => {
     try {
       const response = await fetch(`http://localhost:3000/productdetails/${id}`);
       if (!response.ok) throw new Error('Failed to fetch product details');
@@ -33,7 +35,18 @@ const ProductDetails = () => {
       setIsLoading(false);
     }
   };
-
+//hàm gọi api ảnh theo product
+const fetchImages = async () => {
+  try {
+    const response = await fetch(`http://localhost:3000/products/${id}/images`);
+    if (!response.ok) throw new Error('Failed to fetch images');
+    const data = await response.json();
+    setImages(data.data); // Gán danh sách ảnh từ API vào state
+  } catch (error) {
+    setError(error.message);
+  }
+};
+  
   // Hàm gọi API thông số kỹ thuật
   const fetchSpecifications = async () => {
     try {
@@ -45,9 +58,10 @@ const ProductDetails = () => {
       setError(error.message);
     }
   };
+  
 
   // Hàm thêm sản phẩm vào giỏ hàng
-  const handleAddToCart = (product) => {  
+const handleAddToCart = (product) => {  
     try {
       let cart = JSON.parse(localStorage.getItem('cart')) || []; // Lấy giỏ hàng từ localStorage, nếu không có thì khởi tạo giỏ hàng mới
   
@@ -142,9 +156,15 @@ const handleAddComment = async () => {
     alert('Đã xảy ra lỗi khi thêm bình luận');
   }
 };
+  // Hàm để thay đổi ảnh lớn khi bấm vào ảnh nhỏ
+  const handleSmallImageClick = (imageUrl) => {
+    setLargeImage(`http://localhost:3000/uploads/${imageUrl}`);
+  };
 
-
-
+  // Cập nhật ảnh lớn khi `productdetails?.Avatar` thay đổi
+  useEffect(() => {
+    setLargeImage(`http://localhost:3000/uploads/${productdetails?.Avatar}`);
+  }, [productdetails?.Avatar]);
 //call để lấy giải mã token
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -181,6 +201,7 @@ const handleAddComment = async () => {
     fetchProductDetails();
     fetchSpecifications();
     fetchComments();
+    fetchImages();
   }, [id]);
 
   if (isLoading) return <p>Loading product details...</p>;
@@ -221,13 +242,31 @@ const handleAddComment = async () => {
                   <div className="swiper-wrapper">
                     <div className="product-image-large-image">
                       <img
-                        src={`http://localhost:3000/uploads/${productdetails?.Avatar}`} // Đường dẫn ảnh
+                        src={largeImage}
                         alt={productdetails?.ProductName}
                       />
                     </div>
                   </div>
                 </div>
                 {/* End Large Image */}
+                {/* Start Small Image Grid */}
+                <div className="product-small-image-grid">
+                  <div className="row">
+                    {Images.map((image, index) => (
+                      <div className="col-3" key={index}>
+                        <div className="small-image-wrapper">
+                          <img
+                            src={`http://localhost:3000/uploads/${image.ImageUrl}`}
+                            alt={`Product small thumbnail ${index + 1}`}
+                            className="img-fluid"
+                            onClick={() => handleSmallImageClick(image.ImageUrl)}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                {/* End Small Image Grid */}
               </div>
             </div>
             <div className="col-xl-7 col-lg-6">

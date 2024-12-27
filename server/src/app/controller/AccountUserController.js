@@ -1,8 +1,11 @@
 const Account = require('../models/Account');
-const Customer =require('../models/Customer');
+const Order =require('../models/Order');
+const OrderDetail =require('../models/OrderDetail');
+const Product = require('../models/Product');
 const jwt = require('jsonwebtoken');
 const SECRET_KEY = 'saddasdasadsasdadsas'; 
 const bcrypt = require('bcrypt');
+const Customer = require('../models/Customer');
 
 exports.getAllAccountsUser = async (req, res) => {
     try {
@@ -133,41 +136,71 @@ exports.changePasswordUser = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
-// exports.getOrdersUser = async (req, res) => {
-//     const userId = req.user.userId;  // Lấy userId từ token đã xác thực
-    
-//     try {
-//       // Lấy thông tin khách hàng dựa trên userId
-//       const customer = await Customer.findOne({ where: { AccountId: userId } });
-  
-//       if (!customer) {
-//         return res.status(404).json({ error: 'Không tìm thấy khách hàng' });
-//       }
-  
-//       // Lấy tất cả đơn hàng của khách hàng theo CustomerId
-//       const orders = await Order.findAll({
-//         where: { CustomerId: customer.customerid },
-//         order: [['CreateAt', 'DESC']], // Sắp xếp theo thời gian tạo đơn hàng mới nhất
-//       });
-  
-//       if (!orders || orders.length === 0) {
-//         return res.status(404).json({ message: 'Không có đơn hàng nào được tìm thấy' });
-//       }
-  
-//       // Optional: Lấy chi tiết đơn hàng nếu cần (nếu bạn muốn trả chi tiết sản phẩm trong đơn hàng)
-//       for (const order of orders) {
-//         const orderDetails = await OrderDetail.findAll({
-//           where: { OrderId: order.OrderId },
-//         });
-//         order.dataValues.OrderDetails = orderDetails;  // Thêm chi tiết đơn hàng vào response
-//       }
-  
-//       res.json({
-//         message: 'Danh sách đơn hàng của bạn',
-//         orders: orders,  // Trả lại danh sách đơn hàng với chi tiết nếu cần
-//       });
-//     } catch (error) {
-//       console.error('Error fetching orders:', error);
-//       res.status(500).json({ error: error.message });
-//     }
-//   };
+exports.getOrderUser = async (req, res) => {
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(" ")[1];
+    if (!token) {
+        return res.status(403).json({ message: "Token không được cung cấp" });
+    }
+
+    try {
+        const user = jwt.verify(token, SECRET_KEY);
+        req.user = user; 
+
+       
+        const customer = await Customer.findOne({
+            where: { CustomerId: user.customerid },
+        });
+        if (!customer) {
+            return res.status(404).json({ message: "Không tìm thấy khách hàng." });
+        }
+        const orders = await Order.findAll({
+            where: { CustomerId: user.customerid },
+            order: [["CreateAt", "DESC"]], 
+        });
+      
+        console.log(orders)
+
+        if (orders.length === 0) {
+            return res
+                .status(404)
+                .json({ message: "Khách hàng này chưa có đơn hàng nào." });
+        }
+
+        // Trả về danh sách đơn hàng
+        res.json({ customer, orders });
+    } catch (err) {
+        console.error("Error: ", err.message);
+        if (err.name === "JsonWebTokenError") {
+            return res.status(401).json({ message: "Token không hợp lệ" });
+        }
+        res.status(500).json({ error: err.message });
+    }
+};
+exports.getOrderDetails = async (req, res) => {
+    try {
+        const { orderId } = req.params; // Lấy orderId từ params
+
+        const orderDetail = await OrderDetail.findAll({
+            where: {OrderId: orderId}, 
+            
+            include: [{
+                model: Product,
+                as: "Product"
+            },
+        {
+            model: Order,
+            as:"Order" 
+        }]
+        });
+        if (!orderDetail) {
+            return res.status(404).json({ message: 'Đơn hàng không tìm thấy' });
+        }
+
+        // Trả về thông tin đơn hàng, khách hàng và các sản phẩm trong đơn hàng
+        res.json(orderDetail);
+    } catch (error) {
+        console.error('Lỗi khi lấy thông tin đơn hàng:', error);
+        res.status(500).json({ error: error.message });
+    }
+};

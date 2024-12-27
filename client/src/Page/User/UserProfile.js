@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 
 const UserProfile = ({ onPasswordChange }) => {
     const token = localStorage.getItem("token");
@@ -11,6 +12,7 @@ const UserProfile = ({ onPasswordChange }) => {
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [orders, setOrders] = useState([]);
+    const [selectedOrder, setSelectedOrder] = useState(null);
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -40,21 +42,48 @@ const UserProfile = ({ onPasswordChange }) => {
         fetchUserData();
     }, []);
     useEffect(() => {
-        const fetchOrders = async () => {
+        const fetchOrder = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('Bạn chưa đăng nhập! Vui lòng đăng nhập để xem thông tin đơn hàng.');
+                return;
+            }
+    
             try {
-                const response = await axios.get('http://localhost:3000/orders', {
+                const response = await fetch('http://localhost:3000/order', {
+                    method: 'GET',
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
                     },
                 });
-                setOrders(response.data.orders);  // Giả sử API trả về 'orders'
+    
+                if (!response.ok) {
+                    // Kiểm tra các lỗi cụ thể từ server
+                    if (response.status === 403) {
+                        alert('Bạn không có quyền truy cập. Vui lòng đăng nhập lại.');
+                    } else if (response.status === 404) {
+                        alert('Không tìm thấy đơn hàng nào cho tài khoản này.');
+                    } else if (response.status === 401) {
+                        alert('Phiên đăng nhập của bạn đã hết hạn. Vui lòng đăng nhập lại.');
+                    } else {
+                        alert('Đã xảy ra lỗi khi lấy thông tin đơn hàng.');
+                    }
+                    return;
+                }
+    
+                const data = await response.json();
+                console.log(data)
+                setOrders(data.orders || []); // Lưu danh sách đơn hàng vào state, mặc định là mảng rỗng nếu không có
             } catch (error) {
-                console.error("Error fetching orders:", error);
+                console.error('Error fetching order data:', error);
+                alert('Không thể kết nối tới server. Vui lòng kiểm tra kết nối mạng và thử lại.');
             }
         };
-
-        fetchOrders();
+    
+        fetchOrder();
     }, []);
+    
     const handleProfileUpdate = async () => {
         const updatedData = {
             userId:accountInformation?.userId,
@@ -128,12 +157,6 @@ const UserProfile = ({ onPasswordChange }) => {
                     <div className="row mb-2">
                         <div className="col-sm-6" style={{ marginTop: '90px' }}>
                             <h1>Thông tin tài khoản cá nhân</h1>
-                        </div>
-                        <div className="col-sm-6">
-                            <ol className="breadcrumb float-sm-right">
-                                <li className="breadcrumb-item"><a href="">Dashboard</a></li>
-                                <li className="breadcrumb-item active">Thông tin</li>
-                            </ol>
                         </div>
                     </div>
                 </div>
@@ -353,34 +376,31 @@ const UserProfile = ({ onPasswordChange }) => {
                                                             <th style={{ width: '15%' }}>Mã đơn hàng</th>
                                                             <th style={{ width: '20%' }}>Ngày đặt</th>
                                                             <th style={{ width: '20%' }}>Giá tiền</th>
-                                                            <th style={{ width: '25%' }}>Trạng thái</th>
-                                                            <th style={{ width: '20%' }}>Hành động</th>
+                                                            <th style={{ width: '20%' }}>Chi tiết</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
+                                                    {orders.length > 0 ? (
+                                                        orders.map((order) => (
+                                                            <tr key={order.OrderId}>
+                                                                <td>{order.OrderId}</td>
+                                                                <td>{new Date(order.CreateAt).toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</td>
+                                                                <td>{order.TotalPrice.toLocaleString()} VND</td>
+                                                                <td>
+                                                                    <Link to={`/order/${order.OrderId}`} className="btn btn-info btn-sm">
+                                                                        Xem chi tiết
+                                                                    </Link>
+                                                                </td>
+                                                            </tr>
+                                                        ))
+                                                    ) : ( 
                                                         <tr>
-                                                            <td>123456</td>
-                                                            <td>2024-12-26</td>
-                                                            <td>1,000,000 VND</td>
-                                                            <td><span className="badge bg-success">Đã giao</span></td>
-                                                            <td>
-                                                                <button className="btn btn-info btn-sm">
-                                                                    Xem chi tiết
-                                                                </button>
+                                                            <td colSpan="5" className="text-center">
+                                                                Không có đơn hàng nào.
                                                             </td>
                                                         </tr>
-                                                        <tr>
-                                                            <td>789012</td>
-                                                            <td>2024-12-20</td>
-                                                            <td>2,500,000 VND</td>
-                                                            <td><span className="badge bg-warning">Đang xử lý</span></td>
-                                                            <td>
-                                                                <button className="btn btn-info btn-sm">
-                                                                    Xem chi tiết
-                                                                </button>
-                                                            </td>
-                                                        </tr>
-                                                    </tbody>
+                                                    )}
+                                                </tbody>
                                                 </table>
                                             </div>
                                         </div>

@@ -11,18 +11,24 @@ const authorize = require("./src/Common/Authorize");
 
 // Controller imports
 const { getAllBrands, addBrand, deleteBrand, editBrand } = require("./src/app/controller/BrandController");
-const { getAllProducts, addProduct, deleteProduct, getProductDetails, getProductSpecifications, searchProducts, updateProduct,getProductById } = require("./src/app/controller/ProductController");
+const { getAllProducts, addProduct, deleteProduct, getProductDetails, getProductSpecifications, searchProducts, updateProduct,getProductById,getImagesByProductId } = require("./src/app/controller/ProductController");
 const { getAllAccounts, getProfileAdmin,updateProfileAdmin,changePassword } = require("./src/app/controller/AccountController");
 const { login,register } = require("./src/app/controller/LoginController");
 const { addToCart, getCart, updateQuantity, removeFromCart } = require('./src/app/controller/CartController');
 const { getCustomerData, checkout } = require('./src/app/controller/CheckoutController');
 const { getCommentsByProduct , addComment } = require('./src/app/controller/CommentController');
-const { getAllAccountsUser, getProfileUser,updateProfileUser,changePasswordUser } = require("./src/app/controller/AccountUserController");
+const { getAllAccountsUser, getProfileUser,updateProfileUser,changePasswordUser, getOrderUser,getOrderDetails } = require("./src/app/controller/AccountUserController");
 
 app.use(cors({ origin: "http://localhost:3001", credentials: true })); 
 app.use(express.json()); 
 app.use(bodyParser.json());
 app.use('/uploads', express.static(path.join(__dirname, 'src', 'app', 'uploads')));
+
+
+
+app.get('/order', getOrderUser);
+app.get('/order/:orderId', getOrderDetails);
+
 
 // Route đăng nhập (không cần xác thực)
 app.post("/privatesite/login", login);
@@ -60,6 +66,7 @@ app.put('/privatesite/profile/changepassword', authorize(["Quản trị"]), chan
 app.get('/products/:productId/specifications',getProductSpecifications)
 app.get('/products', getAllProducts);
 app.get('/brands', getAllBrands);
+app.get('/products/:productId/images', getImagesByProductId);
 //
 app.post('/cart/add', addToCart);
 app.get('/cart', getCart);
@@ -70,17 +77,14 @@ app.post('/checkout',checkout);
 app.get('/api/customer', getCustomerData);
 //Bình luận theo sản phẩm
 app.get('/comments/:productId', getCommentsByProduct);
-// Profile User
-// app.get("/accountmanagementUser", getAllAccountsUser);
-// app.get('/profileUser', getProfileUser);
-// app.put('/updateprofileUser', updateProfileUser);
-// app.put('/profile/changepasswordUser', changePasswordUser); 
+
 
 app.get("/accountmanagementUser", authorize(["Người dùng"]), getAllAccountsUser);
 app.get('/profileUser', authorize(["Người dùng"]), getProfileUser);
 app.put('/updateprofileUser', authorize(["Người dùng"]), updateProfileUser);
 app.put('/profile/changepasswordUser', authorize(["Người dùng"]), changePasswordUser); 
 //
+
 app.get("/", (req, res) => {
   res.json({ message: "Server đang chạy!" });
 });

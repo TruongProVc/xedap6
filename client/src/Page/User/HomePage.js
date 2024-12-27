@@ -50,10 +50,7 @@ const Content = () => {
                   </div>
                   <div className="content">
                     <h6 className="title">FREE SHIPPING</h6>
-                    <p>
-                      Get 10% cash back, free shipping, free returns, and more at
-                      1000+ top retailers!
-                    </p>
+                   
                   </div>
                 </div>
               </div>
@@ -66,10 +63,7 @@ const Content = () => {
                   </div>
                   <div className="content">
                     <h6 className="title">FREE SHIPPING</h6>
-                    <p>
-                      Get 10% cash back, free shipping, free returns, and more at
-                      1000+ top retailers!
-                    </p>
+                   
                   </div>
                 </div>
               </div>
@@ -82,10 +76,7 @@ const Content = () => {
                   </div>
                   <div className="content">
                     <h6 className="title">FREE SHIPPING</h6>
-                    <p>
-                      Get 10% cash back, free shipping, free returns, and more at
-                      1000+ top retailers!
-                    </p>
+                   
                   </div>
                 </div>
               </div>
@@ -98,10 +89,7 @@ const Content = () => {
                   </div>
                   <div className="content">
                     <h6 className="title">FREE SHIPPING</h6>
-                    <p>
-                      Get 10% cash back, free shipping, free returns, and more at
-                      1000+ top retailers!
-                    </p>
+                  
                   </div>
                 </div>
               </div>
@@ -120,7 +108,7 @@ const Content = () => {
               <div className="col-12">
                 <div className="section-content-gap">
                   <div className="secton-content">
-                    <h3 className="section-title">XE ĐẠP ĐUA</h3>
+                    <h3 className="section-title">Sản phẩn bán chạy</h3>
                     <p><Link to='/AllItem'>Tất cả sản phẩm</Link></p>
                   </div>
                 </div>
@@ -213,7 +201,7 @@ const Content = () => {
               <div className="col-12">
                 <div className="section-content-gap">
                   <div className="secton-content">
-                    <h3 className="section-title">XE ĐẠP ĐUA</h3>
+                    <h3 className="section-title">SẢN PHẨM MỚI</h3>
                     <p><Link to='/AllItem'>Tất cả sản phẩm</Link></p>
                   </div>
                 </div>

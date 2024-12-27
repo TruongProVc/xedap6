@@ -210,14 +210,6 @@ const Menu = () => {
             <Link to={"/AllItem"}>
               Sản phẩm <i className="fa fa-angle-down" />
             </Link>
-            <ul className="sub-menu">
-              <li>
-                <Link to="/xedapdua">Xe đạp đua</Link>
-              </li>
-              <li>
-                <Link to="#">Xe đạp địa hình</Link>
-              </li>
-            </ul>
           </li>
 
           <li>

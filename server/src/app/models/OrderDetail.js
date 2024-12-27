@@ -1,4 +1,3 @@
-// models/OrderDetail.js
 const { DataTypes } = require('sequelize');
 const sequelize = require('../../config/db');
 const Order = require('./Order');
@@ -13,18 +12,12 @@ const Product = require('./Product');
     OrderId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: {
-        model: 'Order', // Tên bảng tương ứng
-        key: 'OrderId',
-      },
+    
     },
     ProductId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: {
-        model: 'Product', // Tên bảng tương ứng
-        key: 'ProductId',
-      },
+     
     },
     Quantity: {
       type: DataTypes.INTEGER,
@@ -32,14 +25,15 @@ const Product = require('./Product');
     },
   },
   {
-    tableName: 'OrderDetail',
+    tableName: 'orderdetail',
     timestamps: false,
-}
-);
+});
 
-  // Khai báo quan hệ giữa các bảng (nếu có)
-    // Khai báo quan hệ với Order và Product (nếu có)
-  OrderDetail.belongsTo(Order, { foreignKey: 'OrderId' });
-  OrderDetail.belongsTo(Product, { foreignKey: 'ProductId' });
+OrderDetail.belongsTo(Order, { foreignKey: 'OrderId' });
+Order.hasMany(OrderDetail, { foreignKey: 'OrderId' });
+
+
+OrderDetail.belongsTo(Product, { foreignKey: 'ProductId' });
+Product.hasMany(OrderDetail, { foreignKey: 'ProductId' });
 
 module.exports = OrderDetail;

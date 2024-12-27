@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../../config/db');
+const Customer = require('./Customer'); 
 
 const Order = sequelize.define('Order', {
     OrderId: {
@@ -10,10 +11,6 @@ const Order = sequelize.define('Order', {
     CustomerId: {
         type: DataTypes.INTEGER,
         allowNull: true,
-        references: {
-            model: 'customer', // Bảng customer
-            key: 'CustomerId',
-        },
     },
     PaymentMethod: {
         type: DataTypes.STRING,
@@ -44,5 +41,10 @@ const Order = sequelize.define('Order', {
     tableName: 'order',
     timestamps: false, 
 });
+
+// Khai báo mối quan hệ giữa Order và Customer
+Order.belongsTo(Customer, { foreignKey: 'CustomerId' });
+Customer.hasOne(Order, { foreignKey: 'CustomerId' });
+
 
 module.exports = Order;

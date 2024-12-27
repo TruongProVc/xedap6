@@ -256,7 +256,7 @@ exports.updateProduct = async (req, res) => {
 //
 exports.getProductDetails = async (req, res) => {
     try {
-      const { id } = req.params; // Lấy id từ URL
+      const { id } = req.params; 
       const product = await Product.findByPk(id, {
         include: [Brand, Specification]  
       });
@@ -316,3 +316,30 @@ try {
     });
 }
 };
+exports.getImagesByProductId = async (req, res) => {
+    try {
+        const { productId } = req.params; // Lấy productId từ URL
+    
+        // Tìm tất cả các thông số kỹ thuật dựa trên ProductId
+        const images = await Image.findAll({
+            where: { ProductId: productId },
+        });
+        console.log(images)
+        if (images.length === 0) {
+            return res.status(404).json({
+                message: 'Không có ảnh  nào cho sản phẩm .',
+            });
+        }
+    
+        res.json({
+            message: 'Ảnh của sản phẩm',
+            data: images,
+        });
+    } catch (error) {
+        console.error('Lỗi khi lấy ảnht:', error);
+        res.status(500).json({
+            error: 'Lỗi khi lấy ảnh của sản phẩm',
+            details: error.message,
+        });
+    }
+    };

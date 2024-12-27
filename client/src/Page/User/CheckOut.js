@@ -280,18 +280,18 @@ const handleCheckout = () => {
                       </table>
                     </div>
                     <div className="payment-method-dropdown">
-  <label htmlFor="payment-method" className="payment-label">
-    Phương thức thanh toán
-  </label>
-  <select
-    id="payment-method"
-    className="payment-select"
-    value={paymentMethod}
-    onChange={(e) => setPaymentMethod(e.target.value)}
-  >
-    <option value="CashOnDelivery">Thanh toán khi nhận hàng</option>
-    <option value="CreditCard">Thanh toán bằng thẻ</option>
-  </select>
+                  <label htmlFor="payment-method" className="payment-label">
+                    Phương thức thanh toán
+                  </label>
+                  <select
+                    id="payment-method"
+                    className="payment-select"
+                    value={paymentMethod}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
+                  >
+                    <option value="CashOnDelivery">Thanh toán khi nhận hàng</option>
+                    <option value="CreditCard">Thanh toán bằng thẻ</option>
+                  </select>
                     </div>
 
                     <div className="checkout_btn">

@@ -19546,3 +19546,13 @@ Pages - Contact
     background-color: #fff;
     color: #333;
   }
+/* CSS để thêm hiệu ứng hover cho ảnh nhỏ */
+.small-image-wrapper img {
+    transition: transform 0.3s ease, opacity 0.3s ease; /* Thêm hiệu ứng chuyển động */
+  }
+  
+  .small-image-wrapper img:hover {
+    transform: scale(1.1); /* Phóng to ảnh khi di chuột vào */
+    opacity: 0.7; /* Làm mờ ảnh khi di chuột vào */
+  }
+  
